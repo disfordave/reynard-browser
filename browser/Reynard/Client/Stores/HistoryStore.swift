@@ -138,6 +138,14 @@ final class HistoryStore {
         }
     }
     
+    func deleteAllHistoryItems() {
+        stateQueue.async {
+            if self.deleteAllHistoryLocked() {
+                self.postDidChange()
+            }
+        }
+    }
+    
     private func prepareStorageLocked() {
         try? fileManager.createDirectory(at: storage.directoryURL, withIntermediateDirectories: true)
     }
@@ -246,6 +254,22 @@ final class HistoryStore {
         bind(title, to: statement, at: 1)
         bind(pageURL.absoluteString, to: statement, at: 2)
         bind(title, to: statement, at: 3)
+        
+        guard sqlite3_step(statement) == SQLITE_DONE else {
+            return false
+        }
+        
+        return sqlite3_changes(database) > 0
+    }
+    
+    private func deleteAllHistoryLocked() -> Bool {
+        guard let statement = prepareStatementLocked("DELETE FROM history;") else {
+            return false
+        }
+        
+        defer {
+            sqlite3_finalize(statement)
+        }
         
         guard sqlite3_step(statement) == SQLITE_DONE else {
             return false

@@ -32,6 +32,7 @@ final class LibraryViewController: UITabBarController, UITabBarControllerDelegat
             navigationItem.rightBarButtonItem = makeCloseBarButtonItem()
         }
         updateNavigationTitle()
+        updateNavigationItems()
         
         NotificationCenter.default.addObserver(
             self,
@@ -80,6 +81,7 @@ final class LibraryViewController: UITabBarController, UITabBarControllerDelegat
     
     func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
         updateNavigationTitle()
+        updateNavigationItems()
     }
     
     private func updateNavigationTitle() {
@@ -89,6 +91,26 @@ final class LibraryViewController: UITabBarController, UITabBarControllerDelegat
         }
         
         title = section.title
+    }
+    
+    private func updateNavigationItems() {
+        guard let section = LibrarySection(rawValue: selectedIndex) else {
+            navigationItem.leftBarButtonItem = nil
+            navigationItem.rightBarButtonItem = makeCloseBarButtonItem()
+            return
+        }
+        
+        guard onClose != nil else {
+            return
+        }
+        
+        if section == .history {
+            navigationItem.leftBarButtonItem = makeDeleteAllHistoryButton()
+        } else {
+            navigationItem.leftBarButtonItem = nil
+        }
+        
+        navigationItem.rightBarButtonItem = makeCloseBarButtonItem()
     }
     
     @objc private func dismissLibraryMenu() {

@@ -135,7 +135,8 @@ final class LibrarySidebarViewController: UIViewController, UICollectionViewDele
         
         return LibrarySidebarDetailViewController(
             title: section.title,
-            contentViewController: contentViewController
+            contentViewController: contentViewController,
+            showsDeleteAllHistoryButton: section == .history
         )
     }
     
@@ -188,10 +189,12 @@ private final class LibrarySidebarDetailViewController: UIViewController {
     private let contentViewController: UIViewController
     private let detailTitle: String
     private let maximumContentWidth: CGFloat = 360
+    private let showsDeleteAllHistoryButton: Bool
     
-    init(title: String, contentViewController: UIViewController) {
+    init(title: String, contentViewController: UIViewController, showsDeleteAllHistoryButton: Bool) {
         self.detailTitle = title
         self.contentViewController = contentViewController
+        self.showsDeleteAllHistoryButton = showsDeleteAllHistoryButton
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -227,7 +230,13 @@ private final class LibrarySidebarDetailViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(false, animated: animated)
-        navigationItem.leftItemsSupplementBackButton = false
-        navigationItem.leftBarButtonItem = nil
+        if showsDeleteAllHistoryButton {
+            // Keep the back button visible
+            navigationItem.leftItemsSupplementBackButton = true
+            navigationItem.leftBarButtonItem = makeDeleteAllHistoryButton()
+        } else {
+            navigationItem.leftItemsSupplementBackButton = false
+            navigationItem.leftBarButtonItem = nil
+        }
     }
 }
